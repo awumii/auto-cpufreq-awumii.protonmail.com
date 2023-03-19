@@ -6,9 +6,9 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
 
-
 const Me = ExtensionUtils.getCurrentExtension();
 const settings = ExtensionUtils.getSettings("org.gnome.shell.extensions.auto-cpufreq-extension");
+const Parser = Me.imports.parser.Parser
 
 // Code for the panel indicator
 class Extension {
@@ -30,9 +30,16 @@ class Extension {
 
         Main.panel.addToStatusArea(this._uuid, this._indicator);
 
-        this.updateStatsOnUI();
-        this.updateTimer();
+        // Create a new popup and add a label to show the statistics
+        this.popupBox = new St.BoxLayout({ style_class: "panel" });
+        this.popupLabel = new St.Label({ text: "Initializing..." });
+        this.popupBox.add(this.popupLabel);
 
+        // Add the popup to the menu
+        this._indicator.menu.box.add(this.popupBox);
+
+        // Setup the statistic update timer
+        this.updateTimer();
         settings.connect('changed::refresh', () => this.updateTimer());
     }
 
@@ -60,18 +67,10 @@ class Extension {
 
     // Update the UI with the latest stats
     updateStatsOnUI() {
-        if (!this.popupBox) {
-            // Create a new popup and add a label to show the statistics
-            this.popupBox = new St.BoxLayout({ style_class: 'panel' });
-            this.popupLabel = new St.Label({ text: this.getStatsFromFile() });
-            this.popupBox.add(this.popupLabel);
+        const stats = this.getStatsFromFile();
+        //const parser = new Parser(stats);
 
-            // Add the popup to the menu
-            this._indicator.menu.box.add(this.popupBox);
-        } else {
-            // Update the label text
-            this.popupLabel.set_text(this.getStatsFromFile());
-        }
+        this.popupLabel.set_text(stats);
     }
         
     // Read the latest stats from the file
@@ -85,7 +84,7 @@ class Extension {
             const decoder = new TextDecoder();
             const stats = decoder.decode(contents);
         
-            const latestStats = stats.split('\n').slice(-41, -2).join('\n');
+            const latestStats = stats.split('\n').slice(-42, -2).join('\n');
             console.timeEnd('getStatsFromFile');
             return latestStats;
         }
