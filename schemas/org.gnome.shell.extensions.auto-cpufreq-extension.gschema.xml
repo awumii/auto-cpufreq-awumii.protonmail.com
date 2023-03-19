@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+    <schema id="org.gnome.shell.extensions.auto-cpufreq-extension" path="/org/gnome/shell/extensions/auto-cpufreq-extension/">
+        <key name="refresh" type="i">
+            <default>3</default>
+            <summary>The refresh timeout for auto-cpufreq indicator</summary>
+            <description>
+                This option controls how often the extension refreshes the statistics displayed in the user interface.
+            </description>
+        </key>
+    </schema>
+</schemalist>

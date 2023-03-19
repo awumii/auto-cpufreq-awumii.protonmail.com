@@ -1,0 +1,9 @@
+{
+  "name": "auto-cpufreq",
+  "description": "Display auto-cpufreq stats on the top bar",
+  "uuid": "auto-cpufreq@awumii.protonmail.com",
+  "settings-schema": "org.gnome.shell.extensions.auto-cpufreq-extension",
+  "shell-version": [
+    "44"
+  ]
+}
