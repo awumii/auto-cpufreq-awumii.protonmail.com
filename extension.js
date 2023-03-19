@@ -5,10 +5,13 @@ const { St, Gio, GLib } = imports.gi;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
+const PopupMenu = imports.ui.popupMenu;
 
 const Me = ExtensionUtils.getCurrentExtension();
 const settings = ExtensionUtils.getSettings("org.gnome.shell.extensions.auto-cpufreq-extension");
-const Parser = Me.imports.parser.Parser
+const Parser = Me.imports.parser.Parser;
+
+const Utils = Me.imports.utils;
 
 // Code for the panel indicator
 class Extension {
@@ -18,15 +21,7 @@ class Extension {
 
     enable() {
         this._indicator = new PanelMenu.Button(0.0, "auto-cpufreq indicator", false);
-
-        // Create icon for the button
-        let gicon = Gio.icon_new_for_string(`${Me.path}/speedometer-symbolic.svg`);
-        let icon = new St.Icon({
-            gicon,
-            icon_size: 16
-        });
-    
-        this._indicator.add_child(icon);
+        this._indicator.add_child(Utils.createIcon(Me, "speedometer-symbolic"));
 
         Main.panel.addToStatusArea(this._uuid, this._indicator);
 
@@ -37,6 +32,12 @@ class Extension {
 
         // Add the popup to the menu
         this._indicator.menu.box.add(this.popupBox);
+
+        // Settings button
+        const settingsItem = new PopupMenu.PopupMenuItem("Settings", {});
+        settingsItem.connect('activate', () => ExtensionUtils.openPrefs());
+        settingsItem.insert_child_at_index(Utils.createIcon(Me, "settings-symbolic"), 0);
+        this._indicator.menu.box.add(settingsItem);
 
         // Setup the statistic update timer
         this.updateTimer();
@@ -67,29 +68,10 @@ class Extension {
 
     // Update the UI with the latest stats
     updateStatsOnUI() {
-        const stats = this.getStatsFromFile();
+        const stats = Utils.getStatsFromFile();
         //const parser = new Parser(stats);
 
         this.popupLabel.set_text(stats);
-    }
-        
-    // Read the latest stats from the file
-    getStatsFromFile() {
-        console.time('getStatsFromFile');
-        const file = Gio.File.new_for_path("/var/run/auto-cpufreq.stats");
-    
-        if (file.query_exists(null)) {
-            const contents = file.load_contents(null)[1];
-        
-            const decoder = new TextDecoder();
-            const stats = decoder.decode(contents);
-        
-            const latestStats = stats.split('\n').slice(-42, -2).join('\n');
-            console.timeEnd('getStatsFromFile');
-            return latestStats;
-        }
-    
-        return "Could not read auto-cpufreq stats, is the daemon disabled?";
     }
 }
 

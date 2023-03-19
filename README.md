@@ -4,5 +4,5 @@ Unstable debug version!
 
 # Screenshots
 This is going to look better soon!  
-<img src="media/panel.png"></img>
-<img src="media/settings.png"></img>
+<img src=".github/panel.png"></img>
+<img src=".github/settings.png"></img>
